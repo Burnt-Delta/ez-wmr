@@ -5,7 +5,9 @@
 
 using namespace std;
 
+// public file variables
 fstream file;
+string fileloc = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\default.vrsettings";
 
 // seek location initialization
 int seek1 = 0, seek2 = 0, seek3 = 0;
@@ -16,10 +18,9 @@ void getAnswer();
 
 int main()
 {
-
-    file.open("C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\test.txt", ios::in | ios::out | ios::binary);
-
-    if (file.is_open())
+    file.open(fileloc, ios::in | ios::binary); // must be read in in binary mode due to how
+                                               // Windows treats files opened in fstream, especially in
+    if (file.is_open())                        // conjunction with the getline function
     {
         cout << "File is open." << endl;
         getSeek();
@@ -28,7 +29,7 @@ int main()
         if ((seek1 != 0) && (seek2 != 0) && (seek3 !=0)) // checks if getSeek() reached all three checkpoints
         {
             file.close();
-            file.open("C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\test.txt");
+            file.open(fileloc); // re-opens file to properly write
             getAnswer();
         }
         else
@@ -46,7 +47,7 @@ int main()
 void getSeek()
 {
     string line;
-    int tempw, tempt, offset; // tempw/tempt holds the in-line location of key terms, offset calculates seek location
+    int tempw, tempt, offset; // used to find location of key terms to calculate seek location
     bool atFirst = true, atSec = false; // determines which of the three seek values is currently being found
 
     while (getline(file, line))
@@ -57,8 +58,8 @@ void getSeek()
         else
             tempw = line.find("thumbstickTurn");
 
-
-        if (tempw != string::npos)  // flags lines related to thumbstickControls or thumbstickTurn
+        // flags lines related to thumbstickControls or thumbstickTurn
+        if (tempw != string::npos)
         {
             cout << "Reached thumbstick" << endl; // TEST LINE
 
@@ -73,7 +74,8 @@ void getSeek()
                 if (tempt != string::npos) // transfers location to proper variable in case of "true,"
                     tempw = tempt;
 
-                offset = file.tellg() - line.length() - 1; // offset calculation
+                // offset calculation                       // the file read position is currently at the end of the line + 1
+                offset = file.tellg() - line.length() - 1;  // due to '\n' being discarded, so length + 1 must be subtracted from read pos
 
                 if ((atFirst)&&(!atSec))    // Determines where we are in the process and
                 {                           // puts the address in the corresponding variable.
@@ -86,7 +88,10 @@ void getSeek()
                     atFirst = false;
                 }
                 else
-                    seek3 = tempw + offset; // to do: prevent third variable from being re-altered
+                {
+                    seek3 = tempw + offset;
+                    return;
+                }
             }
         }
     }
@@ -132,7 +137,7 @@ void getAnswer()
     {
         cout << "Invalid answer, please try again." << endl;
         cin.ignore(numeric_limits<streamsize>::max(),'\n');
-        getAnswer();
+        getAnswer(); // to do: remove "recursion"
     }
 
 }
