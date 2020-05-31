@@ -101,43 +101,47 @@ void getSeek()
 void getAnswer()
 {
     char ans;
-    cout << "Set thumbstick controls to true or false? (T/F): ";
-    ans = getchar();
+    bool done = false;
 
-    if ((ans=='t')||(ans=='T'))
+    while (!done)
     {
-        file.seekp(seek1);
-        file << "true, ";
+        cout << "Set thumbstick controls to true or false? (T/F): ";
+        ans = getchar();
 
-        file.seekp(seek2);
-        file << "true, ";
+        if ((ans=='t')||(ans=='T'))
+        {
+            file.seekp(seek1);
+            file << "true, ";
 
-        file.seekp(seek3);
-        file << "true, ";
+            file.seekp(seek2);
+            file << "true, ";
 
-        cout << "Action completed." << endl;
+            file.seekp(seek3);
+            file << "true, ";
 
+            cout << "Action completed." << endl;
+            done = true;
+        }
+
+        else if ((ans=='f')||(ans=='F'))
+        {
+            file.seekp(seek1);
+            file << "false, ";
+
+            file.seekp(seek2);
+            file << "false, ";
+
+            file.seekp(seek3);
+            file << "false, ";
+
+            cout << "Action completed." << endl;
+            done = true;
+        }
+
+        else
+        {
+            cout << "Invalid answer, please try again." << endl;
+            cin.ignore(numeric_limits<streamsize>::max(),'\n');
+        }
     }
-
-    else if ((ans=='f')||(ans=='F'))
-    {
-        file.seekp(seek1);
-        file << "false, ";
-
-        file.seekp(seek2);
-        file << "false, ";
-
-        file.seekp(seek3);
-        file << "false, ";
-
-        cout << "Action completed." << endl;
-    }
-
-    else
-    {
-        cout << "Invalid answer, please try again." << endl;
-        cin.ignore(numeric_limits<streamsize>::max(),'\n');
-        getAnswer(); // to do: remove "recursion"
-    }
-
 }
