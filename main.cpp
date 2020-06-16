@@ -19,7 +19,7 @@ void getAnswer();
 int main()
 {
 	file.open(fileloc, ios::in | ios::binary); // must be read in in binary mode due to how
-											   // Windows treats files opened in fstream, especially in
+						   // Windows treats files opened in fstream, especially in
 	if (file.is_open())                        // conjunction with the getline function
 	{
 		cout << "File is open." << endl;
