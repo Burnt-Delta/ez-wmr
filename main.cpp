@@ -76,7 +76,7 @@ void getSeek()
 				// offset calculation                       // the file read position is currently at the end of the line + 1
 				offset = file.tellg() - line.length() - 1;  // due to '\n' being discarded, so length + 1 must be subtracted from read pos
 
-				if (seek1 == 0)				// Determines where we are in the process and
+				if (seek1 == 0)			// Determines where we are in the process and
 					seek1 = tempw + offset; // puts the address in the corresponding variable.
 				else if (seek2 == 0)
 					seek2 = tempw + offset;
