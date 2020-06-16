@@ -18,130 +18,122 @@ void getAnswer();
 
 int main()
 {
-    file.open(fileloc, ios::in | ios::binary); // must be read in in binary mode due to how
-                                               // Windows treats files opened in fstream, especially in
-    if (file.is_open())                        // conjunction with the getline function
-    {
-        cout << "File is open." << endl;
-        getSeek();
-        cout << seek1 << " " << seek2 << " " << seek3 << endl; // TEST LINE
+	file.open(fileloc, ios::in | ios::binary); // must be read in in binary mode due to how
+											   // Windows treats files opened in fstream, especially in
+	if (file.is_open())                        // conjunction with the getline function
+	{
+		cout << "File is open." << endl;
+		getSeek();
+		cout << seek1 << " " << seek2 << " " << seek3 << endl; // TEST LINE
 
-        if ((seek1 != 0) && (seek2 != 0) && (seek3 !=0)) // checks if getSeek() reached all three checkpoints
-        {
-            file.close();
-            file.open(fileloc); // re-opens file to properly write
-            getAnswer();
-        }
-        else
-            cout << "There was an error reading your settings file. Please check its contents and try again.";
+		if (seek3 != 0) // checks if getSeek() reached all three checkpoints
+		{
+			file.close();
+			file.open(fileloc); // re-opens file to properly write
+			getAnswer();
+		}
+		else
+			cout << "There was an error reading your settings file. Please check its contents and try again.";
 
-        file.close();
-    }
+		file.close();
+	}
 
-    else
-        cout << "ERROR: File could not be opened.";
+	else
+		cout << "ERROR: File could not be opened.";
 
-    return 0;
+	return 0;
 }
 
 void getSeek()
 {
-    string line;
-    int tempw, tempt, offset; // used to find location of key terms to calculate seek location
-    bool atFirst = true, atSec = false; // determines which of the three seek values is currently being found
+	string line;
+	int tempw, tempt, offset; // used to find location of key terms to calculate seek location
 
-    while (getline(file, line))
-    {
-        // searches line for a key term, places result in tempw
-        if (atFirst)
-            tempw = line.find("thumbstickControls");
-        else
-            tempw = line.find("thumbstickTurn");
+	while (getline(file, line))
+	{
+		// searches line for a key term, places result in tempw
+		if (seek2 == 0)
+			tempw = line.find("thumbstickControls");
+		else
+			tempw = line.find("thumbstickTurn");
 
-        // flags lines related to thumbstickControls or thumbstickTurn
-        if (tempw != string::npos)
-        {
-            cout << "Reached thumbstick" << endl; // TEST LINE
+		// flags lines related to thumbstickControls or thumbstickTurn
+		if (tempw != string::npos)
+		{
+			cout << "Reached thumbstick" << endl; // TEST LINE
 
-            // checks if flagged line is relevant
-            tempw = line.find("false,");
-            tempt = line.find("true,");
+			// checks if flagged line is relevant
+			tempw = line.find("false,");
+			tempt = line.find("true,");
 
-            if ((tempw != string::npos)||(tempt != string::npos))  // if the line contains "false," or "true,"
-            {
-                cout << "Reached true/false" << endl; // TEST LINE
+			if ((tempw != string::npos) || (tempt != string::npos))  // if the line contains "false," or "true,"
+			{
+				cout << "Reached true/false" << endl; // TEST LINE
 
-                if (tempt != string::npos) // transfers location to proper variable in case of "true,"
-                    tempw = tempt;
+				if (tempt != string::npos) // transfers location to proper variable in case of "true,"
+					tempw = tempt;
 
-                // offset calculation                       // the file read position is currently at the end of the line + 1
-                offset = file.tellg() - line.length() - 1;  // due to '\n' being discarded, so length + 1 must be subtracted from read pos
+				// offset calculation                       // the file read position is currently at the end of the line + 1
+				offset = file.tellg() - line.length() - 1;  // due to '\n' being discarded, so length + 1 must be subtracted from read pos
 
-                if ((atFirst)&&(!atSec))    // Determines where we are in the process and
-                {                           // puts the address in the corresponding variable.
-                    seek1 = tempw + offset;
-                    atSec = true;
-                }
-                else if (atFirst)
-                {
-                    seek2 = tempw + offset;
-                    atFirst = false;
-                }
-                else
-                {
-                    seek3 = tempw + offset;
-                    return;
-                }
-            }
-        }
-    }
-
+				if (seek1 == 0)				// Determines where we are in the process and
+					seek1 = tempw + offset; // puts the address in the corresponding variable.
+				else if (seek2 == 0)
+					seek2 = tempw + offset;
+				else
+				{
+					seek3 = tempw + offset;
+					return;
+				}
+			}
+		}
+	}
 }
 
 void getAnswer()
 {
-    char ans;
-    bool done = false;
+	char ans;
+	bool done = false;
 
-    while (!done)
-    {
-        cout << "Set thumbstick controls to true or false? (T/F): ";
-        ans = getchar();
+	while (!done)
+	{
+		cout << "Set thumbstick controls to true or false? (T/F): ";
+		ans = getchar();
 
-        if ((ans=='t')||(ans=='T'))
-        {
-            file.seekp(seek1);
-            file << "true, ";
+		if ((ans == 't') || (ans == 'T'))
+		{
+			file.seekp(seek1);
+			file << "true, ";
 
-            file.seekp(seek2);
-            file << "true, ";
+			file.seekp(seek2);
+			file << "true, ";
 
-            file.seekp(seek3);
-            file << "true, ";
+			file.seekp(seek3);
+			file << "true, ";
 
-            cout << "Action completed." << endl;
-            done = true;
-        }
+			cout << "Action completed." << endl;
+			done = true;
+		}
 
-        else if ((ans=='f')||(ans=='F'))
-        {
-            file.seekp(seek1);
-            file << "false, ";
+		else if ((ans == 'f') || (ans == 'F'))
+		{
+			file.seekp(seek1);
+			file << "false, ";
 
-            file.seekp(seek2);
-            file << "false, ";
+			file.seekp(seek2);
+			file << "false, ";
 
-            file.seekp(seek3);
-            file << "false, ";
+			file.seekp(seek3);
+			file << "false, ";
 
-            cout << "Action completed." << endl;
-            done = true;
-        }
+			cout << "Action completed." << endl;
+			done = true;
+		}
 
-        else
-        {
-            cout << "Invalid answer, please try again." << endl;
-            cin.ignore(numeric_limits<streamsize>::max(),'\n');
-        }
-    }
+		else
+		{
+			cout << "Invalid answer, please try again." << endl;
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		}
+	}
 }
