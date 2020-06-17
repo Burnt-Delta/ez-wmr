@@ -19,7 +19,7 @@ void getAnswer();
 int main()
 {
 	file.open(fileloc, ios::in | ios::binary); // must be read in in binary mode due to how
-						   // Windows treats files opened in fstream, especially in
+											   // Windows treats files opened in fstream, especially in
 	if (file.is_open())                        // conjunction with the getline function
 	{
 		cout << "File is open." << endl;
@@ -47,7 +47,7 @@ int main()
 void getSeek()
 {
 	string line;
-	int tempw, tempt, offset; // used to find location of key terms to calculate seek location
+	int tempw, tempt, offset, loc = 0; // used to find location of key terms to calculate seek location
 
 	while (getline(file, line))
 	{
@@ -62,21 +62,24 @@ void getSeek()
 		{
 			cout << "Reached thumbstick" << endl; // TEST LINE
 
+			// TODO: verify whitespace integrity in case of "true,//"
+
 			// checks if flagged line is relevant
 			tempw = line.find("false,");
 			tempt = line.find("true,");
 
-			if ((tempw != string::npos) || (tempt != string::npos))  // if the line contains "false," or "true,"
+			if ((tempw != string::npos) || (tempt != string::npos))
 			{
 				cout << "Reached true/false" << endl; // TEST LINE
 
 				if (tempt != string::npos) // transfers location to proper variable in case of "true,"
 					tempw = tempt;
 
-				// offset calculation                       // the file read position is currently at the end of the line + 1
-				offset = file.tellg() - line.length() - 1;  // due to '\n' being discarded, so length + 1 must be subtracted from read pos
+				// offset calculation
+				loc = file.tellg();				   // the file read position is currently at the end of the line + 1
+				offset = loc - line.length() - 1;  // due to '\n' being discarded, so length + 1 must be subtracted from read pos
 
-				if (seek1 == 0)			// Determines where we are in the process and
+				if (seek1 == 0)				// Determines where we are in the process and
 					seek1 = tempw + offset; // puts the address in the corresponding variable.
 				else if (seek2 == 0)
 					seek2 = tempw + offset;
