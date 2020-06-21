@@ -22,9 +22,7 @@ int main()
 											   // Windows treats files opened in fstream, especially in
 	if (file.is_open())                        // conjunction with the getline function
 	{
-		cout << "File is open." << endl;
 		getSeek();
-		cout << seek1 << " " << seek2 << " " << seek3 << endl; // TEST LINE
 
 		if (seek3 != 0) // checks if getSeek() reached all three checkpoints
 		{
@@ -60,8 +58,6 @@ void getSeek()
 		// flags lines related to thumbstickControls or thumbstickTurn
 		if (tempw != string::npos)
 		{
-			cout << "Reached thumbstick" << endl; // TEST LINE
-
 			// TODO: verify whitespace integrity in case of "true,//"
 
 			// checks if flagged line is relevant
@@ -70,8 +66,6 @@ void getSeek()
 
 			if ((tempw != string::npos) || (tempt != string::npos))
 			{
-				cout << "Reached true/false" << endl; // TEST LINE
-
 				if (tempt != string::npos) // transfers location to proper variable in case of "true,"
 					tempw = tempt;
 
