@@ -1,4 +1,5 @@
-#include <iostream>
+// ToggleFunctions.cpp
+
 #include <fstream>
 #include <limits>
 #include <string>
@@ -15,38 +16,42 @@ int seek1 = 0, seek2 = 0, seek3 = 0;
 
 // forward function declarations
 //---------------------------------
-void toggle(); // driver function
+short int toggle(); // driver function
 
-void getSeek(); // finds seek locations
+void getSeek(short int& f); // finds seek locations
 
 void getAnswer(); // writes to file
 //---------------------------------
 
-void toggle() // TODO: change to boolean
+short int toggle() // TODO: change to boolean
 {
 	file.open(fileloc, ios::in | ios::binary); // must be read in in binary mode due to how
 											   // Windows treats files opened in fstream, especially in
 	if (file.is_open())                        // conjunction with the getline function
 	{
-		getSeek();
+		short int tf = 0;
+		getSeek(&tf);
 
 		if (seek3 != 0) // checks if getSeek() reached all three checkpoints
 		{
 			file.close();
 			file.open(fileloc); // re-opens file to properly write
-			getAnswer();
+			getAnswer(tf);
+			return tf;
 		}
 		else
-			cout << "There was an error reading your settings file. Please check its contents and try again.";
+			return 2;
+		//			 cout << "There was an error reading your settings file. Please check its contents and try again.";
 
 		file.close();
 	}
 
 	else
-		cout << "ERROR: File could not be opened.";
+		return 1;
+	//		cout << "ERROR: File could not be opened.";
 }
 
-void getSeek()
+void getSeek(short int& f)
 {
 	string line;
 	int tempw, tempt, offset, loc = 0; // used to find location of key terms to calculate seek location
@@ -71,7 +76,12 @@ void getSeek()
 			if ((tempw != string::npos) || (tempt != string::npos))
 			{
 				if (tempt != string::npos) // transfers location to proper variable in case of "true,"
+				{
+					f = 3;
 					tempw = tempt;
+				}
+				else
+					f = 4;
 
 				// offset calculation
 				loc = file.tellg();				   // the file read position is currently at the end of the line + 1
@@ -91,50 +101,40 @@ void getSeek()
 	}
 }
 
-void getAnswer()
+void getAnswer(short int f)
 {
-	char ans;
-	bool done = false;
-
-	while (!done)
+	if (f = 4)
 	{
-		cout << "Set thumbstick controls to true or false? (T/F): ";
-		ans = getchar();
+		file.seekp(seek1);
+		file << "true, ";
 
-		if ((ans == 't') || (ans == 'T'))
-		{
-			file.seekp(seek1);
-			file << "true, ";
+		file.seekp(seek2);
+		file << "true, ";
 
-			file.seekp(seek2);
-			file << "true, ";
+		file.seekp(seek3);
+		file << "true, ";
 
-			file.seekp(seek3);
-			file << "true, ";
+		cout << "Action completed." << endl;
+		done = true;
+	}
 
-			cout << "Action completed." << endl;
-			done = true;
-		}
+	else if (f = 3)
+	{
+		file.seekp(seek1);
+		file << "false, ";
 
-		else if ((ans == 'f') || (ans == 'F'))
-		{
-			file.seekp(seek1);
-			file << "false, ";
+		file.seekp(seek2);
+		file << "false, ";
 
-			file.seekp(seek2);
-			file << "false, ";
+		file.seekp(seek3);
+		file << "false, ";
 
-			file.seekp(seek3);
-			file << "false, ";
+		cout << "Action completed." << endl;
+		done = true;
+	}
 
-			cout << "Action completed." << endl;
-			done = true;
-		}
-
-		else
-		{
-			cout << "Invalid answer, please try again." << endl;
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		}
+	else
+	{
+		// handle error here
 	}
 }
