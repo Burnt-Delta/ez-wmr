@@ -2,16 +2,19 @@
 // Microsoft Visual C++ generated include file.
 // Used by ez-wmr.rc
 
+#define BUTTON_TOGGLE			3
+#define BUTTON_BROWSE			4
+
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_EZWMR_DIALOG	102
+#define IDD_EZWMR_DIALOG		102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
-#define IDI_EZWMR			107
+#define IDI_EZWMR				107
 #define IDI_SMALL				108
-#define IDC_EZWMR			109
+#define IDC_EZWMR				109
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1

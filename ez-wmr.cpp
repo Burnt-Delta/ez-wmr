@@ -3,6 +3,7 @@
 
 #include "framework.h"
 #include "ez-wmr.h"
+#include "ToggleFunctions.cpp"
 
 #define MAX_LOADSTRING 100
 
@@ -131,6 +132,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Parse the menu selections:
             switch (wmId)
             {
+            case BUTTON_TOGGLE:
+                toggle();
+                break;
+ //           case BUTTON_BROWSE:              
+ //               break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
@@ -141,6 +147,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
         }
+        break;
+    case WM_CREATE:
+        CreateWindowEx(0, L"BUTTON", L"Toggle", WS_CHILD | WS_VISIBLE, 20, 100, 114, 50, hWnd, (HMENU)BUTTON_TOGGLE, GetModuleHandle(NULL), NULL);
+        CreateWindowEx(0, L"BUTTON", L"Browse", WS_CHILD | WS_VISIBLE, 300, 100, 114, 50, hWnd, (HMENU)BUTTON_BROWSE, GetModuleHandle(NULL), NULL);
         break;
     case WM_PAINT:
         {

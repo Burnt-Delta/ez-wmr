@@ -2,7 +2,7 @@
 #include <fstream>
 #include <limits>
 #include <string>
-#include <ToggleFunctions.h>
+#undef max
 
 using namespace std;
 
@@ -12,6 +12,15 @@ string fileloc = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealit
 
 // seek location initialization
 int seek1 = 0, seek2 = 0, seek3 = 0;
+
+// forward function declarations
+//---------------------------------
+void toggle(); // driver function
+
+void getSeek(); // finds seek locations
+
+void getAnswer(); // writes to file
+//---------------------------------
 
 void toggle() // TODO: change to boolean
 {
