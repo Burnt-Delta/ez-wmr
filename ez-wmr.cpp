@@ -11,6 +11,7 @@
 HINSTANCE hInst;                                            // current instance
 WCHAR szTitle[MAX_LOADSTRING] = (L"ezWMR by Burnt-Delta");  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];                        // the main window class name
+short int result = 0;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -132,8 +133,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Parse the menu selections:
             switch (wmId)
             {
+            // Attempts toggle
             case BUTTON_TOGGLE:
-                toggle();
+                result = toggle();
+
+                // Handles result
+                if (result >= 3)
+                {
+                    getAnswer(result);
+                    // TODO: success message
+                }
+//              else if (result == 2)
+                    // TODO: "couldn't read" message
+//              else if (result == 1)
+                    // TODO: "couldn't open" message
+//              else
+                    // TODO: default message
+
+                result = 0;
                 break;
  //           case BUTTON_BROWSE:              
  //               break;
