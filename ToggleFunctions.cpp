@@ -8,11 +8,12 @@
 using namespace std;
 
 // public file variables
+//---------------------------------
 fstream file;
-string fileloc = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\default.vrsettings";
+string fileloc = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\test.txt";
 
-// seek location initialization
-int seek1 = 0, seek2 = 0, seek3 = 0;
+int seek1 = 0, seek2 = 0, seek3 = 0; // seek location initialization
+//---------------------------------
 
 // forward function declarations
 //---------------------------------
@@ -20,35 +21,35 @@ short int toggle(); // driver function
 
 void getSeek(short int& f); // finds seek locations
 
-void getAnswer(); // writes to file
+void getAnswer(short int f); // writes to file
 //---------------------------------
 
-short int toggle() // TODO: change to boolean
+short int toggle() 
 {
 	file.open(fileloc, ios::in | ios::binary); // must be read in in binary mode due to how
 											   // Windows treats files opened in fstream, especially in
 	if (file.is_open())                        // conjunction with the getline function
 	{
 		short int tf = 0;
-		getSeek(&tf);
+		getSeek(tf);
 
 		if (seek3 != 0) // checks if getSeek() reached all three checkpoints
 		{
 			file.close();
-			file.open(fileloc); // re-opens file to properly write
-			getAnswer(tf);
+//			getAnswer(tf);
 			return tf;
 		}
 		else
+		{
+			file.close();
 			return 2;
-		//			 cout << "There was an error reading your settings file. Please check its contents and try again.";
-
-		file.close();
+//			cout << "There was an error reading your settings file. Please check its contents and try again.";
+		}
 	}
 
 	else
 		return 1;
-	//		cout << "ERROR: File could not be opened.";
+	//	cout << "ERROR: File could not be opened.";
 }
 
 void getSeek(short int& f)
@@ -73,9 +74,11 @@ void getSeek(short int& f)
 			tempw = line.find("false,");
 			tempt = line.find("true,");
 
+			// In case of "true," transfers location to tempw for later use.
+			// Also sets tf flag.
 			if ((tempw != string::npos) || (tempt != string::npos))
 			{
-				if (tempt != string::npos) // transfers location to proper variable in case of "true,"
+				if (tempt != string::npos) 
 				{
 					f = 3;
 					tempw = tempt;
@@ -103,7 +106,9 @@ void getSeek(short int& f)
 
 void getAnswer(short int f)
 {
-	if (f = 4)
+	file.open(fileloc);
+
+	if (f == 4)
 	{
 		file.seekp(seek1);
 		file << "true, ";
@@ -113,12 +118,9 @@ void getAnswer(short int f)
 
 		file.seekp(seek3);
 		file << "true, ";
-
-		cout << "Action completed." << endl;
-		done = true;
 	}
 
-	else if (f = 3)
+	else if (f == 3)
 	{
 		file.seekp(seek1);
 		file << "false, ";
@@ -128,13 +130,12 @@ void getAnswer(short int f)
 
 		file.seekp(seek3);
 		file << "false, ";
-
-		cout << "Action completed." << endl;
-		done = true;
 	}
 
 	else
 	{
 		// handle error here
 	}
+
+	file.close();
 }
