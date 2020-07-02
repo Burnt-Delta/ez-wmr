@@ -1,4 +1,5 @@
 // ToggleFunctions.cpp
+// Author: Burnt-Delta
 
 #include <fstream>
 #include <limits>
@@ -10,23 +11,22 @@ using namespace std;
 // public file variables
 //---------------------------------
 fstream file;
-string fileloc = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\test.txt";
 
 int seek1 = 0, seek2 = 0, seek3 = 0; // seek location initialization
 //---------------------------------
 
 // forward function declarations
 //---------------------------------
-short int toggle(); // driver function
+short int toggle(string);				// driver function
 
-void getSeek(short int& f); // finds seek locations
+void	  getSeek(short int&);			// finds seek locations
 
-void getAnswer(short int f); // writes to file
+void	  getAnswer(short int, string); // writes to file
 //---------------------------------
 
-short int toggle() 
+short int toggle(string fl) 
 {
-	file.open(fileloc, ios::in | ios::binary); // must be read in in binary mode due to how
+	file.open(fl, ios::in | ios::binary);	   // must be read in in binary mode due to how
 											   // Windows treats files opened in fstream, especially in
 	if (file.is_open())                        // conjunction with the getline function
 	{
@@ -36,7 +36,6 @@ short int toggle()
 		if (seek3 != 0) // checks if getSeek() reached all three checkpoints
 		{
 			file.close();
-//			getAnswer(tf);
 			return tf;
 		}
 		else
@@ -104,9 +103,9 @@ void getSeek(short int& f)
 	}
 }
 
-void getAnswer(short int f)
+void getAnswer(short int f, string fl)
 {
-	file.open(fileloc);
+	file.open(fl);
 
 	if (f == 4)
 	{

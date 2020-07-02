@@ -1,5 +1,5 @@
 // ez-wmr.cpp : Defines the entry point for the application.
-//
+// Author: Burnt-Delta
 
 #include "framework.h"
 #include "ez-wmr.h"
@@ -7,17 +7,24 @@
 
 #define MAX_LOADSTRING 100
 
-// Global Variables:
+// global variables
+//--------------------------------------------------------
 HINSTANCE hInst;                                            // current instance
 WCHAR szTitle[MAX_LOADSTRING] = (L"ezWMR by Burnt-Delta");  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];                        // the main window class name
-short int result = 0;
+short int result = 0;                                       // used to handle messages from ToggleFunctions.cpp
+string fileloc = FILELOC_DEFAULT;                           // filepath of default.vrsettings
+wchar_t wfileloc[150] = (L"C:\\Program Files(x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\test.txt");
+//--------------------------------------------------------
 
-// Forward declarations of functions included in this code module:
+// forward function declarations
+//--------------------------------------------------------
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+void                browse(HWND);
+//--------------------------------------------------------
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -26,8 +33,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-
-    // TODO: Place code here.
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -100,7 +105,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, 500, 225, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
@@ -135,12 +140,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
             // Attempts toggle
             case BUTTON_TOGGLE:
-                result = toggle();
+                result = toggle(fileloc);
 
                 // Handles result
                 if (result >= 3)
                 {
-                    getAnswer(result);
+                    getAnswer(result, fileloc);
                     // TODO: success message
                 }
 //              else if (result == 2)
@@ -152,8 +157,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 result = 0;
                 break;
- //           case BUTTON_BROWSE:              
- //               break;
+            case BUTTON_BROWSE: 
+                browse(hWnd);
+                break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
@@ -167,7 +173,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CREATE:
         CreateWindowEx(0, L"BUTTON", L"Toggle", WS_CHILD | WS_VISIBLE, 20, 100, 114, 50, hWnd, (HMENU)BUTTON_TOGGLE, GetModuleHandle(NULL), NULL);
-        CreateWindowEx(0, L"BUTTON", L"Browse", WS_CHILD | WS_VISIBLE, 300, 100, 114, 50, hWnd, (HMENU)BUTTON_BROWSE, GetModuleHandle(NULL), NULL);
+        CreateWindowEx(0, L"BUTTON", L"Browse", WS_CHILD | WS_VISIBLE, 345, 100, 114, 50, hWnd, (HMENU)BUTTON_BROWSE, GetModuleHandle(NULL), NULL);
         break;
     case WM_PAINT:
         {
@@ -204,4 +210,30 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+//
+// FUNCTION: browse()
+//
+// PURPOSE: Creates dialog box to choose fileloc.
+//
+void browse(HWND hWnd)
+{
+    OPENFILENAME ofn;
+    ZeroMemory(&ofn, sizeof(OPENFILENAME));
+
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFile = wfileloc;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = 150;
+    ofn.lpstrFilter = L"vrsettings Files\0*.vrsettings\0All Files\0*.*\0";
+    ofn.nFilterIndex = 1;
+
+    GetOpenFileName(&ofn);
+
+    // transfers filepath from local struct to global variable
+    wstring ws(wfileloc);
+    string stringtemp(ws.begin(), ws.end());
+    fileloc = stringtemp;
 }
