@@ -135,25 +135,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
-            // Parse the menu selections:
+            // Parses the menu selections
             switch (wmId)
             {
             // Attempts toggle
             case BUTTON_TOGGLE:
                 result = toggle(fileloc);
 
-                // Handles result
-                if (result >= 3)
+                // Handles result; TODO: switch to switch case for consistency
+                if (result == 3)
                 {
-                    getAnswer(result, fileloc);
-                    // TODO: success message
+                    getAnswer(3, fileloc);
+                    MessageBox(hWnd,
+                              L"Joystick settings successfully set to false.",
+                              L"Success",
+                              MB_OK);
                 }
-//              else if (result == 2)
-                    // TODO: "couldn't read" message
-//              else if (result == 1)
-                    // TODO: "couldn't open" message
-//              else
-                    // TODO: default message
+                else if (result == 4)
+                {
+                    getAnswer(4, fileloc);
+                    MessageBox(hWnd,
+                              L"Joystick settings successfully set to true.",
+                              L"Success",
+                              MB_OK);
+                }
+                else if (result == 2)
+                {
+                    MessageBox(hWnd,
+                              L"There was an error reading the file. Please check its contents and try again.",
+                              NULL,
+                              MB_OK);
+                }
+                else if (result == 1)
+                {
+                    MessageBox(hWnd, 
+                              L"File could not be opened. Please check filepath and try again.",
+                              NULL,
+                              MB_OK);
+                }
+                else
+                {
+                    MessageBox(hWnd,
+                              L"An unexpected error has occured. Please check filepath and try again.",
+                              NULL,
+                              MB_OK);
+                }
 
                 result = 0;
                 break;

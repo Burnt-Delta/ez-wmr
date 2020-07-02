@@ -42,13 +42,11 @@ short int toggle(string fl)
 		{
 			file.close();
 			return 2;
-//			cout << "There was an error reading your settings file. Please check its contents and try again.";
 		}
 	}
 
 	else
 		return 1;
-	//	cout << "ERROR: File could not be opened.";
 }
 
 void getSeek(short int& f)
