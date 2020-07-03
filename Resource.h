@@ -2,7 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by ez-wmr.rc
 
-#define FILELOC_DEFAULT			"C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\test.txt"
+#define FILELOC_DEFAULT			"C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\default.vrsettings"
 
 #define BUTTON_TOGGLE			3
 #define BUTTON_BROWSE			4

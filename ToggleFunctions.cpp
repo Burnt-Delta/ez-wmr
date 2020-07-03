@@ -1,4 +1,4 @@
-// ToggleFunctions.cpp
+// ToggleFunctions.cpp: Provides functions to provide file manipulation.
 // Author: Burnt-Delta
 
 #include <fstream>
@@ -18,10 +18,10 @@ int seek1 = 0, seek2 = 0, seek3 = 0; // seek location initialization
 // forward function declarations
 //---------------------------------
 short int toggle(string);				// driver function
-
 void	  getSeek(short int&);			// finds seek locations
-
 void	  getAnswer(short int, string); // writes to file
+void	  getFileloc(string&);			// initializes fileloc
+void	  setFileloc(string);			// makes current filepath the default
 //---------------------------------
 
 short int toggle(string fl) 
@@ -129,10 +129,23 @@ void getAnswer(short int f, string fl)
 		file << "false, ";
 	}
 
-	else
-	{
-		// handle error here
-	}
+	file.close();
+}
 
+void getFileloc(string& fl)
+{
+	file.open("config.txt");
+
+	if (file.is_open())
+	{
+		getline(file, fl);
+		file.close();
+	}
+}
+
+void setFileloc(string fl)
+{
+	file.open("config.txt", ios::out);
+	file << fl << "\n";
 	file.close();
 }

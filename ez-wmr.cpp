@@ -14,7 +14,6 @@ WCHAR szTitle[MAX_LOADSTRING] = (L"ezWMR by Burnt-Delta");  // The title bar tex
 WCHAR szWindowClass[MAX_LOADSTRING];                        // the main window class name
 short int result = 0;                                       // used to handle messages from ToggleFunctions.cpp
 string fileloc = FILELOC_DEFAULT;                           // filepath of default.vrsettings
-wchar_t wfileloc[150] = (L"C:\\Program Files(x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\test.txt");
 //--------------------------------------------------------
 
 // forward function declarations
@@ -200,6 +199,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
         CreateWindowEx(0, L"BUTTON", L"Toggle", WS_CHILD | WS_VISIBLE, 20, 100, 114, 50, hWnd, (HMENU)BUTTON_TOGGLE, GetModuleHandle(NULL), NULL);
         CreateWindowEx(0, L"BUTTON", L"Browse", WS_CHILD | WS_VISIBLE, 345, 100, 114, 50, hWnd, (HMENU)BUTTON_BROWSE, GetModuleHandle(NULL), NULL);
+        getFileloc(fileloc); // initializes filepath if config.txt exists
         break;
     case WM_PAINT:
         {
@@ -247,6 +247,7 @@ void browse(HWND hWnd)
 {
     OPENFILENAME ofn;
     ZeroMemory(&ofn, sizeof(OPENFILENAME));
+    wchar_t wfileloc[150] = (L"C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\test.txt");
 
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hWnd;
@@ -255,6 +256,7 @@ void browse(HWND hWnd)
     ofn.nMaxFile = 150;
     ofn.lpstrFilter = L"vrsettings Files\0*.vrsettings\0All Files\0*.*\0";
     ofn.nFilterIndex = 1;
+    ofn.Flags = OFN_NOCHANGEDIR;
 
     GetOpenFileName(&ofn);
 
@@ -262,4 +264,12 @@ void browse(HWND hWnd)
     wstring ws(wfileloc);
     string stringtemp(ws.begin(), ws.end());
     fileloc = stringtemp;
+
+    int mb = MessageBox(hWnd,
+                       L"Set to default filepath?",
+                       L"Browse",
+                       MB_YESNO);
+
+    if (mb == IDYES)
+       setFileloc(fileloc);
 }
