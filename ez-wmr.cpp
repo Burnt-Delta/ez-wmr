@@ -12,11 +12,13 @@
 HINSTANCE hInst;                                               // current instance
 WCHAR szTitle[MAX_LOADSTRING] = L"ezWMR by Burnt-Delta";       // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING] = L"ezWMR by Burnt-Delta"; // the main window class name
-short int result = 0;                                          // used to handle messages from ToggleFunctions.cpp
-string fileloc = FILELOC_DEFAULT;                              // filepath of default.vrsettings
-HWND text;
-int wchar_size = 0;
 wchar_t wfileloc[200] = L"C:\\Program Files (x86)\\Steam\\steamapps\\common\\MixedRealityVRDriver\\resources\\settings\\default.vrsettings";
+HWND text, status;                                             // displays current filepath and file status 
+
+string fileloc = FILELOC_DEFAULT; // filepath of default.vrsettings
+int wchar_size = 0;               // used in conversion from string to wchar
+short int tf = 0;                 // flag to indicate current file condition
+
 string greet = "Current filepath:\n";
 //--------------------------------------------------------
 
@@ -27,42 +29,44 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 void                browse(HWND);
+void				updateStatus(HWND);
+void				updatePath(HWND);
 //--------------------------------------------------------
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR    lpCmdLine,
+	_In_ int       nCmdShow)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // Initialize global strings
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_EZWMR, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
+	// Initialize global strings
+	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+	LoadStringW(hInstance, IDC_EZWMR, szWindowClass, MAX_LOADSTRING);
+	MyRegisterClass(hInstance);
 
-    // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
-    {
-        return FALSE;
-    }
+	// Perform application initialization:
+	if (!InitInstance(hInstance, nCmdShow))
+	{
+		return FALSE;
+	}
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_EZWMR));
+	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_EZWMR));
 
-    MSG msg;
+	MSG msg;
 
-    // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
+	// Main message loop:
+	while (GetMessage(&msg, nullptr, 0, 0))
+	{
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
 
-    return (int) msg.wParam;
+	return (int)msg.wParam;
 }
 
 
@@ -74,23 +78,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-    WNDCLASSEXW wcex;
+	WNDCLASSEXW wcex;
 
-    wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_EZWMR));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_EZWMR);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_EZWMR));
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_EZWMR);
+	wcex.lpszClassName = szWindowClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-    return RegisterClassExW(&wcex);
+	return RegisterClassExW(&wcex);
 }
 
 //
@@ -105,20 +109,20 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // Store instance handle in our global variable
+	hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, 500, 245, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, 0, 500, 265, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+	if (!hWnd)
+	{
+		return FALSE;
+	}
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
 
-   return TRUE;
+	return TRUE;
 }
 
 //
@@ -133,120 +137,116 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
-    {
-    case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // Parses the menu selections
-            switch (wmId)
-            {
-            // Attempts toggle
-            case BUTTON_TOGGLE:
-                result = toggle(fileloc);
+	switch (message)
+	{
+	case WM_COMMAND:
+	{
+		int wmId = LOWORD(wParam);
+		// Parses the menu selections
+		switch (wmId)
+		{
+			// Attempts toggle
+		case BUTTON_TOGGLE:
+		{
+			check(fileloc, tf);
 
-                // Handles result; TODO: switch to switch case for consistency
-                if (result == 3)
-                {
-                    getAnswer(3, fileloc);
-                    MessageBox(hWnd,
-                              L"Joystick settings successfully set to false.",
-                              L"Success",
-                              MB_OK);
-                }
-                else if (result == 4)
-                {
-                    getAnswer(4, fileloc);
-                    MessageBox(hWnd,
-                              L"Joystick settings successfully set to true.",
-                              L"Success",
-                              MB_OK);
-                }
-                else if (result == 2)
-                {
-                    MessageBox(hWnd,
-                              L"There was an error reading the file. Please check its contents and try again.",
-                              NULL,
-                              MB_OK);
-                }
-                else if (result == 1)
-                {
-                    MessageBox(hWnd, 
-                              L"File could not be opened. Please check filepath and try again.",
-                              NULL,
-                              MB_OK);
-                }
-                else
-                {
-                    MessageBox(hWnd,
-                              L"An unexpected error has occured. Please check filepath and try again.",
-                              NULL,
-                              MB_OK);
-                }
+			// Handles result; TODO: switch to switch case for consistency
+			if (tf == 3)
+			{
+				getAnswer(3, fileloc);
+				status = CreateWindowW(L"static", L"Thumbstick Controls: OFF", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+			}
+			else if (tf == 4)
+			{
+				getAnswer(4, fileloc);
+				status = CreateWindowW(L"static", L"Thumbstick Controls: ON", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+			}
+			else if (tf == 2)
+			{
+				MessageBox(hWnd,
+					L"There was an error reading the file. Please check its contents and try again.",
+					NULL,
+					MB_OK);
+			}
+			else if (tf == 1)
+			{
+				MessageBox(hWnd,
+					L"File could not be opened. Please check filepath and try again.",
+					NULL,
+					MB_OK);
+			}
+			else // should never reach this case
+			{
+				MessageBox(hWnd,
+					L"An unexpected error has occured. Please check filepath and try again.",
+					NULL,
+					MB_OK);
+			}
+		}
+		break;
+		case BUTTON_BROWSE:
+			browse(hWnd);
+			break;
+		case IDM_ABOUT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			break;
+		case IDM_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+	}
+	break;
+	case WM_CREATE:
+	{
+		CreateWindowEx(0, L"BUTTON", L"Toggle", WS_CHILD | WS_VISIBLE, 20, 140, 114, 50, hWnd, (HMENU)BUTTON_TOGGLE, GetModuleHandle(NULL), NULL);
+		CreateWindowEx(0, L"BUTTON", L"Browse", WS_CHILD | WS_VISIBLE, 345, 140, 114, 50, hWnd, (HMENU)BUTTON_BROWSE, GetModuleHandle(NULL), NULL);
 
-                result = 0;
-                break;
-            case BUTTON_BROWSE: 
-                browse(hWnd);
-                break;
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
-    case WM_CREATE:
-        CreateWindowEx(0, L"BUTTON", L"Toggle", WS_CHILD | WS_VISIBLE, 20, 120, 114, 50, hWnd, (HMENU)BUTTON_TOGGLE, GetModuleHandle(NULL), NULL);
-        CreateWindowEx(0, L"BUTTON", L"Browse", WS_CHILD | WS_VISIBLE, 345, 120, 114, 50, hWnd, (HMENU)BUTTON_BROWSE, GetModuleHandle(NULL), NULL);
-       
-        getFileloc(fileloc); // initializes filepath if config.txt exists
+		getFileloc(fileloc); // initializes filepath if config.txt exists
 
-        // widens fileloc to display it
-        greet += fileloc;
-        wchar_size = MultiByteToWideChar(CP_UTF8, 0, greet.c_str(), -1, NULL, 0);
-        MultiByteToWideChar(CP_UTF8, 0, greet.c_str(), -1, wfileloc, wchar_size);
-        text = CreateWindow(L"static", wfileloc, WS_CHILD | WS_VISIBLE | SS_EDITCONTROL , 20, 10, 440, 90, hWnd, NULL, NULL, NULL);
-        break;
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
-            EndPaint(hWnd, &ps);
-        }
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
+		// initialization of fileloc text
+		updatePath(hWnd);
+
+		// initialization of status text
+		updateStatus(hWnd);
+	}
+	break;
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
+		// TODO: Add any drawing code that uses hdc here...
+		EndPaint(hWnd, &ps);
+	}
+	break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
 }
 
 // Message handler for about box.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    UNREFERENCED_PARAMETER(lParam);
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		return (INT_PTR)TRUE;
 
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
+	case WM_COMMAND:
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
 }
 
 //
@@ -256,39 +256,58 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 //
 void browse(HWND hWnd)
 {
-    OPENFILENAME ofn;
-    ZeroMemory(&ofn, sizeof(OPENFILENAME));
+	OPENFILENAME ofn;
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
-    ofn.lStructSize = sizeof(OPENFILENAME);
-    ofn.hwndOwner = hWnd;
-    ofn.lpstrFile = wfileloc;
-    ofn.lpstrFile[0] = '\0';
-    ofn.nMaxFile = 200;
-    ofn.lpstrFilter = L"vrsettings Files\0*.vrsettings\0All Files\0*.*\0";
-    ofn.nFilterIndex = 1;
-    ofn.Flags = OFN_NOCHANGEDIR;
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd;
+	ofn.lpstrFile = wfileloc;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = 200;
+	ofn.lpstrFilter = L"vrsettings Files\0*.vrsettings\0All Files\0*.*\0";
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_NOCHANGEDIR;
 
-    if (GetOpenFileName(&ofn))
-    {
-        // transfers filepath from local struct to global variable
-        wstring ws(wfileloc);
-        string stringtemp(ws.begin(), ws.end());
-        fileloc = stringtemp;
+	if (GetOpenFileName(&ofn))
+	{
+		// transfers filepath from local struct to global variable
+		wstring ws(wfileloc);
+		string stringtemp(ws.begin(), ws.end());
+		fileloc = stringtemp;
 
-        int mb = MessageBox(hWnd,
-            L"Set to default filepath?",
-            L"Browse",
-            MB_YESNO);
+		// updates filepath text
+		updatePath(hWnd);
 
-        if (mb == IDYES)
-            setFileloc(fileloc); // sets to default
+		// update status text
+		updateStatus(hWnd);
 
-        // updates text to reflect new filepath
-        greet = "Current filepath: \n";
-        greet += fileloc;
-        wchar_size = MultiByteToWideChar(CP_UTF8, 0, greet.c_str(), -1, NULL, 0);
-        MultiByteToWideChar(CP_UTF8, 0, greet.c_str(), -1, wfileloc, wchar_size);
-        text = CreateWindow(L"static", wfileloc, WS_CHILD | WS_VISIBLE | SS_EDITCONTROL, 20, 10, 440, 70, hWnd, NULL, NULL, NULL);
-   
-    }
+		int mb = MessageBox(hWnd,
+			L"Set to default filepath?",
+			L"Browse",
+			MB_YESNO);
+
+		if (mb == IDYES)
+			setFileloc(fileloc); // sets to default
+	}
+}
+
+void updateStatus(HWND hWnd)
+{
+	check(fileloc, tf);
+
+	if (tf == 4)
+		status = CreateWindowW(L"static", L"Thumbstick Controls: OFF", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+	else if (tf == 3)
+		status = CreateWindowW(L"static", L"Thumbstick Controls: ON", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+	else
+		status = CreateWindowW(L"static", L"Thumbstick Controls: N/A", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+}
+
+void updatePath(HWND hWnd)
+{
+	greet = "Current filepath: \n";
+	greet += fileloc;
+	wchar_size = MultiByteToWideChar(CP_UTF8, 0, greet.c_str(), -1, NULL, 0);
+	MultiByteToWideChar(CP_UTF8, 0, greet.c_str(), -1, wfileloc, wchar_size);
+	text = CreateWindow(L"static", wfileloc, WS_CHILD | WS_VISIBLE | SS_EDITCONTROL, 20, 10, 440, 70, hWnd, NULL, NULL, NULL);
 }

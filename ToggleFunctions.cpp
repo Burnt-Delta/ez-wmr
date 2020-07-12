@@ -17,36 +17,42 @@ int seek1 = 0, seek2 = 0, seek3 = 0; // seek location initialization
 
 // forward function declarations
 //---------------------------------
-short int toggle(string);				// driver function
+void	  check(string, short int&);	// driver function
 void	  getSeek(short int&);			// finds seek locations
 void	  getAnswer(short int, string); // writes to file
 void	  getFileloc(string&);			// initializes fileloc
 void	  setFileloc(string);			// makes current filepath the default
 //---------------------------------
 
-short int toggle(string fl) 
+void check(string fl, short int& f) 
 {
+	f = 0;
+	seek1 = seek2 = seek3 = 0;
+
 	file.open(fl, ios::in | ios::binary);	   // must be read in in binary mode due to how
 											   // Windows treats files opened in fstream, especially in
 	if (file.is_open())                        // conjunction with the getline function
 	{
-		short int tf = 0;
-		getSeek(tf);
+		getSeek(f);
 
 		if (seek3 != 0) // checks if getSeek() reached all three checkpoints
 		{
 			file.close();
-			return tf;
+			return; // flag f will be set to 3 or 4 at this point
 		}
 		else
 		{
 			file.close();
-			return 2;
+			f = 2;
+			return;
 		}
 	}
 
 	else
-		return 1;
+	{
+		f = 1;
+		return;
+	}
 }
 
 void getSeek(short int& f)
