@@ -6,6 +6,9 @@
 
 #define BUTTON_TOGGLE			3
 #define BUTTON_BROWSE			4
+#define BUTTON_CHKBOX1			5
+#define BUTTON_CHKBOX2			6
+#define BUTTON_CHKBOX3			7
 
 #define IDS_APP_TITLE			103
 

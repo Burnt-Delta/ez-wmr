@@ -17,11 +17,11 @@ int seek1 = 0, seek2 = 0, seek3 = 0; // seek location initialization
 
 // forward function declarations
 //---------------------------------
-void	  check(string, short int&);	// driver function
-void	  getSeek(short int&);			// finds seek locations
-void	  getAnswer(short int, string); // writes to file
-void	  getFileloc(string&);			// initializes fileloc
-void	  setFileloc(string);			// makes current filepath the default
+void	  check(string, short int&);		   // driver function
+void	  getSeek(short int&);				   // finds seek locations
+void	  getAnswer(string, bool, bool, bool); // writes to file
+void	  getFileloc(string&);				   // initializes fileloc
+void	  setFileloc(string);				   // makes current filepath the default
 //---------------------------------
 
 void check(string fl, short int& f) 
@@ -107,33 +107,28 @@ void getSeek(short int& f)
 	}
 }
 
-void getAnswer(short int f, string fl)
+void getAnswer(string fl, bool ck1, bool ck2, bool ck3)
 {
 	file.open(fl);
 
-	if (f == 4)
-	{
-		file.seekp(seek1);
+	file.seekp(seek1);
+	if (ck1)
 		file << "true, ";
-
-		file.seekp(seek2);
-		file << "true, ";
-
-		file.seekp(seek3);
-		file << "true, ";
-	}
-
-	else if (f == 3)
-	{
-		file.seekp(seek1);
+	else
 		file << "false, ";
 
-		file.seekp(seek2);
+	file.seekp(seek2);
+	if (ck2)
+		file << "true, ";
+	else
 		file << "false, ";
 
-		file.seekp(seek3);
+	file.seekp(seek3);
+	if (ck3)
+		file << "true, ";
+	else
 		file << "false, ";
-	}
+	
 
 	file.close();
 }

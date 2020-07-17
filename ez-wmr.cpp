@@ -18,8 +18,6 @@ HWND text, status;                                             // displays curre
 string fileloc = FILELOC_DEFAULT; // filepath of default.vrsettings
 int wchar_size = 0;               // used in conversion from string to wchar
 short int tf = 0;                 // flag to indicate current file condition
-
-string greet = "Current filepath:\n";
 //--------------------------------------------------------
 
 // forward function declarations
@@ -151,15 +149,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			check(fileloc, tf);
 
 			// Handles result; TODO: switch to switch case for consistency
-			if (tf == 3)
+			if ((tf == 3) || (tf == 4))
 			{
-				getAnswer(3, fileloc);
-				status = CreateWindowW(L"static", L"Thumbstick Controls: OFF", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
-			}
-			else if (tf == 4)
-			{
-				getAnswer(4, fileloc);
-				status = CreateWindowW(L"static", L"Thumbstick Controls: ON", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+				bool check1 = false, check2 = false, check3 = false;
+
+				if (IsDlgButtonChecked(hWnd, BUTTON_CHKBOX1) == BST_CHECKED)
+					check1 = true;
+				if (IsDlgButtonChecked(hWnd, BUTTON_CHKBOX2) == BST_CHECKED)
+					check2 = true;
+				if (IsDlgButtonChecked(hWnd, BUTTON_CHKBOX3) == BST_CHECKED)
+					check3 = true;
+
+				getAnswer(fileloc, check1, check2, check3);
+				updateStatus(hWnd);
 			}
 			else if (tf == 2)
 			{
@@ -202,6 +204,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		CreateWindowEx(0, L"BUTTON", L"Toggle", WS_CHILD | WS_VISIBLE, 20, 140, 114, 50, hWnd, (HMENU)BUTTON_TOGGLE, GetModuleHandle(NULL), NULL);
 		CreateWindowEx(0, L"BUTTON", L"Browse", WS_CHILD | WS_VISIBLE, 345, 140, 114, 50, hWnd, (HMENU)BUTTON_BROWSE, GetModuleHandle(NULL), NULL);
+
+		CreateWindowEx(0, L"BUTTON", L"Enable Turn", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 20, 85, 100, 20, hWnd, (HMENU)BUTTON_CHKBOX1, GetModuleHandle(NULL), NULL);
+		CreateWindowEx(0, L"BUTTON", L"Enable Move", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 195, 85, 105, 20, hWnd, (HMENU)BUTTON_CHKBOX2, GetModuleHandle(NULL), NULL);
+		CreateWindowEx(0, L"BUTTON", L"Smooth Turn", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 360, 85, 100, 20, hWnd, (HMENU)BUTTON_CHKBOX3, GetModuleHandle(NULL), NULL);
 
 		getFileloc(fileloc); // initializes filepath if config.txt exists
 
@@ -296,16 +302,17 @@ void updateStatus(HWND hWnd)
 	check(fileloc, tf);
 
 	if (tf == 4)
-		status = CreateWindowW(L"static", L"Thumbstick Controls: OFF", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+		status = CreateWindowW(L"static", L"Thumbstick Controls: OFF", WS_VISIBLE | WS_CHILD, 20, 112.5, 440, 20, hWnd, NULL, NULL, NULL);
 	else if (tf == 3)
-		status = CreateWindowW(L"static", L"Thumbstick Controls: ON", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+		status = CreateWindowW(L"static", L"Thumbstick Controls: ON", WS_VISIBLE | WS_CHILD, 20, 112.5, 440, 20, hWnd, NULL, NULL, NULL);
 	else
-		status = CreateWindowW(L"static", L"Thumbstick Controls: N/A", WS_VISIBLE | WS_CHILD, 20, 110, 440, 20, hWnd, NULL, NULL, NULL);
+		status = CreateWindowW(L"static", L"Thumbstick Controls: N/A", WS_VISIBLE | WS_CHILD, 20, 112.5, 440, 20, hWnd, NULL, NULL, NULL);
 }
 
 void updatePath(HWND hWnd)
 {
-	greet = "Current filepath: \n";
+	string greet = "Current filepath:\n";
+
 	greet += fileloc;
 	wchar_size = MultiByteToWideChar(CP_UTF8, 0, greet.c_str(), -1, NULL, 0);
 	MultiByteToWideChar(CP_UTF8, 0, greet.c_str(), -1, wfileloc, wchar_size);
