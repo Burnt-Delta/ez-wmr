@@ -16,8 +16,8 @@ wchar_t wfileloc[200] = L"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Mix
 HWND text, status;                                             // displays current filepath and file status 
 
 string fileloc = FILELOC_DEFAULT; // filepath of default.vrsettings
-int wchar_size = 0;               // used in conversion from string to wchar
-short int tf = 0;                 // flag to indicate current file condition
+int wchar_size = 0;				  // used in conversion from string to wchar
+short int tf[] = {0, 0, 0, 0};    // flags to indicate current file condition
 //--------------------------------------------------------
 
 // forward function declarations
@@ -149,28 +149,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			check(fileloc, tf);
 
 			// Handles result; TODO: switch to switch case for consistency
-			if ((tf == 3) || (tf == 4))
+			if (tf[0] == 0)
 			{
-				bool check1 = false, check2 = false, check3 = false;
+				bool check[] = {false, false, false};
 
 				if (IsDlgButtonChecked(hWnd, BUTTON_CHKBOX1) == BST_CHECKED)
-					check1 = true;
+					check[0] = true;
 				if (IsDlgButtonChecked(hWnd, BUTTON_CHKBOX2) == BST_CHECKED)
-					check2 = true;
+					check[1] = true;
 				if (IsDlgButtonChecked(hWnd, BUTTON_CHKBOX3) == BST_CHECKED)
-					check3 = true;
+					check[2] = true;
 
-				getAnswer(fileloc, check1, check2, check3);
+				getAnswer(fileloc, check);
 				updateStatus(hWnd);
 			}
-			else if (tf == 2)
+			else if (tf[0] == 2)
 			{
 				MessageBox(hWnd,
 					L"There was an error reading the file. Please check its contents and try again.",
 					NULL,
 					MB_OK);
 			}
-			else if (tf == 1)
+			else if (tf[0] == 1)
 			{
 				MessageBox(hWnd,
 					L"File could not be opened. Please check filepath and try again.",
@@ -301,12 +301,32 @@ void updateStatus(HWND hWnd)
 {
 	check(fileloc, tf);
 
-	if (tf == 4)
-		status = CreateWindowW(L"static", L"Thumbstick Controls: OFF", WS_VISIBLE | WS_CHILD, 20, 112.5, 440, 20, hWnd, NULL, NULL, NULL);
-	else if (tf == 3)
-		status = CreateWindowW(L"static", L"Thumbstick Controls: ON", WS_VISIBLE | WS_CHILD, 20, 112.5, 440, 20, hWnd, NULL, NULL, NULL);
+	if (tf[0] != 0)
+		status = CreateWindowW(L"static", L"Thumbstick Controls: N/A", WS_VISIBLE | WS_CHILD, 20, 112, 440, 20, hWnd, NULL, NULL, NULL);
 	else
-		status = CreateWindowW(L"static", L"Thumbstick Controls: N/A", WS_VISIBLE | WS_CHILD, 20, 112.5, 440, 20, hWnd, NULL, NULL, NULL);
+	{
+		string stat = "Thumbstick Turn: ";
+		if (tf[1] == 1)
+			stat += "OFF;  ";
+		else
+			stat += "ON;  ";
+
+		stat += "Thumbstick Move: ";
+		if (tf[2] == 1)
+			stat += "OFF;  ";
+		else
+			stat += "ON;  ";
+
+		stat += "Smooth Turn: ";
+		if (tf[3] == 1)
+			stat += "OFF;";
+		else
+			stat += "ON;";
+
+		wchar_size = MultiByteToWideChar(CP_UTF8, 0, stat.c_str(), -1, NULL, 0);
+		MultiByteToWideChar(CP_UTF8, 0, stat.c_str(), -1, wfileloc, wchar_size);
+		status = CreateWindowW(L"static", wfileloc, WS_VISIBLE | WS_CHILD, 20, 112, 440, 20, hWnd, NULL, NULL, NULL);
+	}	
 }
 
 void updatePath(HWND hWnd)

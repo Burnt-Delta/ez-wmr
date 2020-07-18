@@ -17,16 +17,16 @@ int seek1 = 0, seek2 = 0, seek3 = 0; // seek location initialization
 
 // forward function declarations
 //---------------------------------
-void	  check(string, short int&);		   // driver function
-void	  getSeek(short int&);				   // finds seek locations
-void	  getAnswer(string, bool, bool, bool); // writes to file
-void	  getFileloc(string&);				   // initializes fileloc
-void	  setFileloc(string);				   // makes current filepath the default
+void	  check(string, short int(&)[4]); // driver function
+void	  getSeek(short int(&)[4]);		  // finds seek locations
+void	  getAnswer(string, bool*);		  // writes to file
+void	  getFileloc(string&);			  // initializes fileloc
+void	  setFileloc(string);			  // makes current filepath the default
 //---------------------------------
 
-void check(string fl, short int& f) 
+void check(string fl, short int(&f)[4])
 {
-	f = 0;
+	f[0] = -1;
 	seek1 = seek2 = seek3 = 0;
 
 	file.open(fl, ios::in | ios::binary);	   // must be read in in binary mode due to how
@@ -38,38 +38,38 @@ void check(string fl, short int& f)
 		if (seek3 != 0) // checks if getSeek() reached all three checkpoints
 		{
 			file.close();
-			return; // flag f will be set to 3 or 4 at this point
+			f[0] = 0;
+			return;
 		}
 		else
 		{
 			file.close();
-			f = 2;
+			f[0] = 2;
 			return;
 		}
 	}
 
 	else
 	{
-		f = 1;
+		f[0] = 1;
 		return;
 	}
 }
 
-void getSeek(short int& f)
+void getSeek(short int(&f)[4])
 {
 	string line;
-	int tempw, tempt, offset, loc = 0; // used to find location of key terms to calculate seek location
+	int tempw, tempt, offset = 0, loc = 0; // used to find location of key terms to calculate seek location
 
 	while (getline(file, line))
 	{
-		// searches line for a key term, places result in tempw
+		// flags lines related to thumbstickControls or thumbstickTurn
 		if (seek2 == 0)
 			tempw = line.find("thumbstickControls");
 		else
 			tempw = line.find("thumbstickTurn");
 
-		// flags lines related to thumbstickControls or thumbstickTurn
-		if (tempw != string::npos)
+		if (tempw != string::npos) // found flagged line
 		{
 			// TODO: verify whitespace integrity in case of "true,//"
 
@@ -77,58 +77,81 @@ void getSeek(short int& f)
 			tempw = line.find("false,");
 			tempt = line.find("true,");
 
-			// In case of "true," transfers location to tempw for later use.
-			// Also sets tf flag.
-			if ((tempw != string::npos) || (tempt != string::npos))
+			if ((tempw != string::npos) || (tempt != string::npos)) // found relevant line
 			{
-				if (tempt != string::npos) 
+				// offset calculation
+				loc = file.tellg();				  // the file read position is currently at the end of the line + 1
+				offset = loc - line.length() - 1; // due to '\n' being discarded, so length + 1 must be subtracted from read pos
+
+				// Determines where we are in the process and
+				// puts the address in the corresponding variable.
+				if (seek1 == 0)
 				{
-					f = 3;
-					tempw = tempt;
+					if (tempw != string::npos)
+					{
+						f[1] = 1;
+						seek1 = tempw + offset;
+					}
+					else
+					{
+						f[1] = 2;
+						seek1 = tempt + offset;
+					}
+				}
+				else if (seek2 == 0)
+				{
+					if (tempw != string::npos)
+					{
+						f[2] = 1;
+						seek2 = tempw + offset;
+					}
+					else
+					{
+						f[2] = 2;
+						seek2 = tempt + offset;
+					}
 				}
 				else
-					f = 4;
-
-				// offset calculation
-				loc = file.tellg();				   // the file read position is currently at the end of the line + 1
-				offset = loc - line.length() - 1;  // due to '\n' being discarded, so length + 1 must be subtracted from read pos
-
-				if (seek1 == 0)				// Determines where we are in the process and
-					seek1 = tempw + offset; // puts the address in the corresponding variable.
-				else if (seek2 == 0)
-					seek2 = tempw + offset;
-				else
 				{
-					seek3 = tempw + offset;
-					return;
+					if (tempw != string::npos)
+					{
+						f[3] = 1;
+						seek3 = tempw + offset;
+						return;
+					}
+					else
+					{
+						f[3] = 2;
+						seek3 = tempt + offset;
+						return;
+					}
 				}
 			}
 		}
 	}
 }
 
-void getAnswer(string fl, bool ck1, bool ck2, bool ck3)
+void getAnswer(string fl, bool* ck)
 {
 	file.open(fl);
 
 	file.seekp(seek1);
-	if (ck1)
+	if (ck[0])
 		file << "true, ";
 	else
 		file << "false, ";
 
 	file.seekp(seek2);
-	if (ck2)
+	if (ck[1])
 		file << "true, ";
 	else
 		file << "false, ";
 
 	file.seekp(seek3);
-	if (ck3)
+	if (ck[2])
 		file << "true, ";
 	else
 		file << "false, ";
-	
 
 	file.close();
 }
