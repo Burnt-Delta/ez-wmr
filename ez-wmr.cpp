@@ -17,7 +17,7 @@ HWND text, status;                                             // displays curre
 
 string fileloc = FILELOC_DEFAULT; // filepath of default.vrsettings
 int wchar_size = 0;				  // used in conversion from string to wchar
-short int tf[] = {0, 0, 0, 0};    // flags to indicate current file condition
+short int tf[] = { -1, 0, 0, 0 }; // flags to indicate current file condition
 //--------------------------------------------------------
 
 // forward function declarations
@@ -151,7 +151,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// Handles result; TODO: switch to switch case for consistency
 			if (tf[0] == 0)
 			{
-				bool check[] = {false, false, false};
+				bool check[] = { false, false, false };
 
 				if (IsDlgButtonChecked(hWnd, BUTTON_CHKBOX1) == BST_CHECKED)
 					check[0] = true;
@@ -209,7 +209,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		CreateWindowEx(0, L"BUTTON", L"Enable Move", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 195, 85, 105, 20, hWnd, (HMENU)BUTTON_CHKBOX2, GetModuleHandle(NULL), NULL);
 		CreateWindowEx(0, L"BUTTON", L"Smooth Turn", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 360, 85, 100, 20, hWnd, (HMENU)BUTTON_CHKBOX3, GetModuleHandle(NULL), NULL);
 
-		getFileloc(fileloc); // initializes filepath if config.txt exists
+		getFileloc(fileloc, tf); // initializes filepath if config.txt exists
+
+		if (tf[1] == 2)
+			CheckDlgButton(hWnd, BUTTON_CHKBOX1, BST_CHECKED);
+
+		if (tf[2] == 2)
+			CheckDlgButton(hWnd, BUTTON_CHKBOX2, BST_CHECKED);
+
+		if (tf[3] == 2)
+			CheckDlgButton(hWnd, BUTTON_CHKBOX3, BST_CHECKED);
 
 		// initialization of fileloc text
 		updatePath(hWnd);
@@ -326,7 +335,7 @@ void updateStatus(HWND hWnd)
 		wchar_size = MultiByteToWideChar(CP_UTF8, 0, stat.c_str(), -1, NULL, 0);
 		MultiByteToWideChar(CP_UTF8, 0, stat.c_str(), -1, wfileloc, wchar_size);
 		status = CreateWindowW(L"static", wfileloc, WS_VISIBLE | WS_CHILD, 20, 112, 440, 20, hWnd, NULL, NULL, NULL);
-	}	
+	}
 }
 
 void updatePath(HWND hWnd)

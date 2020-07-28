@@ -17,11 +17,11 @@ int seek1 = 0, seek2 = 0, seek3 = 0; // seek location initialization
 
 // forward function declarations
 //---------------------------------
-void	  check(string, short int(&)[4]); // driver function
-void	  getSeek(short int(&)[4]);		  // finds seek locations
-void	  getAnswer(string, bool*);		  // writes to file
-void	  getFileloc(string&);			  // initializes fileloc
-void	  setFileloc(string);			  // makes current filepath the default
+void	  check(string, short int(&)[4]);	    // driver function
+void	  getSeek(short int(&)[4]);			    // finds seek locations
+void	  getAnswer(string, bool*);			    // writes to file
+void	  getFileloc(string&, short int(&)[4]); // initializes fileloc
+void	  setFileloc(string);				    // makes current filepath the default
 //---------------------------------
 
 void check(string fl, short int(&f)[4])
@@ -156,20 +156,62 @@ void getAnswer(string fl, bool* ck)
 	file.close();
 }
 
-void getFileloc(string& fl)
+void getFileloc(string& fl, short int (&f)[4])
 {
 	file.open("config.txt");
 
 	if (file.is_open())
 	{
 		getline(file, fl);
+
+		string tempstr[3];
+
+		for (int i = 0; i <= 2; i++)
+		{
+			if (getline(file, tempstr[i]))
+				f[i + 1] = stoi(tempstr[i]);
+		}
+
 		file.close();
 	}
 }
 
 void setFileloc(string fl)
 {
-	file.open("config.txt", ios::out);
-	file << fl << "\n";
+	int i = 0; // iterator
+
+	file.open("config.txt", ios::in);
+
+	if (file.is_open())
+	{
+		string tempchk[3];
+		string tempfl; 
+		if (getline(file, tempfl)) // TODO - swap for method that doesn't need tempfl
+		{
+			for (i = 0; i <= 2; i++)
+				getline(file, tempchk[i]);
+		}
+		file.close();
+
+		file.open("config.txt", ios::out);
+
+		file << fl << "\n";
+
+		if (!tempchk[2].empty())
+		{
+			for (i = 0; i <= 2; i++)
+				file << tempchk[i] << "\n";
+		}
+	}
+	else
+	{
+		file.clear();
+		file.open("config.txt", ios::out);
+
+		file << fl << "\n";
+		
+		for (i = 0; i <= 2; i++)
+			file << "1\n";
+	}
 	file.close();
 }
