@@ -22,6 +22,7 @@ void	  getSeek(short int(&)[4]);			    // finds seek locations
 void	  getAnswer(string, bool*);			    // writes to file
 void	  getFileloc(string&, short int(&)[4]); // initializes fileloc
 void	  setFileloc(string);				    // makes current filepath the default
+void	  setCheckbox(bool*);					// makes current checkbox selection the default 
 //---------------------------------
 
 void check(string fl, short int(&f)[4])
@@ -186,7 +187,7 @@ void setFileloc(string fl)
 	{
 		string tempchk[3];
 		string tempfl; 
-		if (getline(file, tempfl)) // TODO - swap for method that doesn't need tempfl
+		if (getline(file, tempfl)) // TODO: swap for method that doesn't need tempfl
 		{
 			for (i = 0; i <= 2; i++)
 				getline(file, tempchk[i]);
@@ -213,5 +214,37 @@ void setFileloc(string fl)
 		for (i = 0; i <= 2; i++)
 			file << "1\n";
 	}
+	file.close();
+}
+
+void setCheckbox(bool* ck)
+{
+	file.open("config.txt", ios::in);
+
+	if (file.is_open())
+	{
+		string tempfl;
+		getline(file, tempfl);
+
+		file.close();
+
+		file.open("config.txt", ios::out);
+		file << tempfl << "\n";
+	}
+	else
+	{
+		file.clear();
+		file.open("config.txt", ios::out);
+		file << "\n";
+	}
+
+	for (int i = 0; i <= 2; i++)
+	{
+		if (ck[i])
+			file << "2\n";
+		else
+			file << "1\n";
+	}
+
 	file.close();
 }

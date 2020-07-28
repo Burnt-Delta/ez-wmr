@@ -161,6 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					check[2] = true;
 
 				getAnswer(fileloc, check);
+				setCheckbox(check);
 				updateStatus(hWnd);
 			}
 			else if (tf[0] == 2)
