@@ -1,8 +1,8 @@
 # ez-wmr
 A tool to quickly alter settings related to the use of SteamVR with Windows Mixed Reality.
 
-Regardless of if joystick movement is supported in a given SteamVR game, this tool allows for an easy method of
-toggling artificial joystick movement. Please note that you must be closed out of SteamVR while executing this tool.
+This tool allows for an easy method of toggling artificial SteamVR joystick movement regardless of if it is supported in a given SteamVR game. 
+Please note that you must be closed out of SteamVR while executing this tool.
 
 The tool reads the default.vrsettings file and toggles 
 between true and false the following settings:
