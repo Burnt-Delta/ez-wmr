@@ -8,35 +8,28 @@
 
 using namespace std;
 
-// public file variables
-//---------------------------------
-fstream file;
-
-int seek1 = 0, seek2 = 0, seek3 = 0; // seek location initialization
-//---------------------------------
-
 // forward function declarations
 //---------------------------------
-void	  check(string, short int(&)[4]);	    // driver function
-void	  getSeek(short int(&)[4]);			    // finds seek locations
-void	  getAnswer(string, bool*);			    // writes to file
-void	  getFileloc(string&, short int(&)[4]); // initializes fileloc
-void	  setFileloc(string);				    // makes current filepath the default
-void	  setCheckbox(bool*);					// makes current checkbox selection the default 
+void	  check(string, short int(&)[4], int(&)[3]);	 // driver function
+void	  getSeek(short int(&)[4], int(&)[3], fstream&); // finds seek locations
+void	  getAnswer(string, bool*, int[3]);				 // writes to file
+void	  getFileloc(string&, short int(&)[4]);			 // initializes fileloc
+void	  setFileloc(string);							 // makes current filepath the default
+void	  setCheckbox(bool*);							 // makes current checkbox selection the default 
 //---------------------------------
 
-void check(string fl, short int(&f)[4])
+void check(string fl, short int(&f)[4], int(&seek)[3])
 {
+	fstream file;
 	f[0] = -1;
-	seek1 = seek2 = seek3 = 0;
 
 	file.open(fl, ios::in | ios::binary);	   // must be read in in binary mode due to how
 											   // Windows treats files opened in fstream, especially in
 	if (file.is_open())                        // conjunction with the getline function
 	{
-		getSeek(f);
+		getSeek(f, seek, file);
 
-		if (seek3 != 0) // checks if getSeek() reached all three checkpoints
+		if (seek[2] != 0) // checks if getSeek() reached all three checkpoints
 		{
 			file.close();
 			f[0] = 0;
@@ -57,7 +50,7 @@ void check(string fl, short int(&f)[4])
 	}
 }
 
-void getSeek(short int(&f)[4])
+void getSeek(short int(&f)[4], int(&seek)[3], fstream& file)
 {
 	string line;
 	int tempw, tempt, offset = 0, loc = 0; // used to find location of key terms to calculate seek location
@@ -65,7 +58,7 @@ void getSeek(short int(&f)[4])
 	while (getline(file, line))
 	{
 		// flags lines related to thumbstickControls or thumbstickTurn
-		if (seek2 == 0)
+		if (seek[1] == 0)
 			tempw = line.find("thumbstickControls");
 		else
 			tempw = line.find("thumbstickTurn");
@@ -86,30 +79,30 @@ void getSeek(short int(&f)[4])
 
 				// Determines where we are in the process and
 				// puts the address in the corresponding variable.
-				if (seek1 == 0)
+				if (seek[0] == 0)
 				{
 					if (tempw != string::npos)
 					{
 						f[1] = 1;
-						seek1 = tempw + offset;
+						seek[0] = tempw + offset;
 					}
 					else
 					{
 						f[1] = 2;
-						seek1 = tempt + offset;
+						seek[0] = tempt + offset;
 					}
 				}
-				else if (seek2 == 0)
+				else if (seek[1] == 0)
 				{
 					if (tempw != string::npos)
 					{
 						f[2] = 1;
-						seek2 = tempw + offset;
+						seek[1] = tempw + offset;
 					}
 					else
 					{
 						f[2] = 2;
-						seek2 = tempt + offset;
+						seek[1] = tempt + offset;
 					}
 				}
 				else
@@ -117,13 +110,13 @@ void getSeek(short int(&f)[4])
 					if (tempw != string::npos)
 					{
 						f[3] = 1;
-						seek3 = tempw + offset;
+						seek[2] = tempw + offset;
 						return;
 					}
 					else
 					{
 						f[3] = 2;
-						seek3 = tempt + offset;
+						seek[2] = tempt + offset;
 						return;
 					}
 				}
@@ -132,23 +125,24 @@ void getSeek(short int(&f)[4])
 	}
 }
 
-void getAnswer(string fl, bool* ck)
+void getAnswer(string fl, bool* ck, int seek[3])
 {
+	fstream file;
 	file.open(fl);
 
-	file.seekp(seek1);
+	file.seekp(seek[0]);
 	if (ck[0])
 		file << "true, ";
 	else
 		file << "false, ";
 
-	file.seekp(seek2);
+	file.seekp(seek[1]);
 	if (ck[1])
 		file << "true, ";
 	else
 		file << "false, ";
 
-	file.seekp(seek3);
+	file.seekp(seek[2]);
 	if (ck[2])
 		file << "true, ";
 	else
@@ -159,6 +153,7 @@ void getAnswer(string fl, bool* ck)
 
 void getFileloc(string& fl, short int (&f)[4])
 {
+	fstream file;
 	file.open("config.txt");
 
 	if (file.is_open())
@@ -181,6 +176,7 @@ void setFileloc(string fl)
 {
 	int i = 0; // iterator
 
+	fstream file;
 	file.open("config.txt", ios::in);
 
 	if (file.is_open())
@@ -219,6 +215,7 @@ void setFileloc(string fl)
 
 void setCheckbox(bool* ck)
 {
+	fstream file;
 	file.open("config.txt", ios::in);
 
 	if (file.is_open())

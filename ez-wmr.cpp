@@ -146,7 +146,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// Attempts toggle
 		case BUTTON_TOGGLE:
 		{
-			check(fileloc, tf);
+			int seek[] = { 0, 0, 0 };
+			check(fileloc, tf, seek);
 
 			// Handles result; TODO: switch to switch case for consistency
 			if (tf[0] == 0)
@@ -160,7 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (IsDlgButtonChecked(hWnd, BUTTON_CHKBOX3) == BST_CHECKED)
 					check[2] = true;
 
-				getAnswer(fileloc, check);
+				getAnswer(fileloc, check, seek);
 				setCheckbox(check);
 				updateStatus(hWnd);
 			}
@@ -309,7 +310,8 @@ void browse(HWND hWnd)
 
 void updateStatus(HWND hWnd)
 {
-	check(fileloc, tf);
+	int seek[] = { 0, 0, 0 };
+	check(fileloc, tf, seek);
 
 	if (tf[0] != 0)
 		status = CreateWindowW(L"static", L"Thumbstick Controls: N/A", WS_VISIBLE | WS_CHILD, 20, 112, 440, 20, hWnd, NULL, NULL, NULL);
